@@ -31,41 +31,6 @@ struct ip_hdr{
     struct in_addr ip_src, ip_dst;	/* source and dest address */
   };
 
-const struct tok tcp_flag_values[] = {
-        { TH_FIN, "F" },
-        { TH_SYN, "S" },
-        { TH_RST, "R" },
-        { TH_PUSH, "P" },
-        { TH_ACK, "." },
-        { TH_URG, "U" },
-        { TH_ECNECHO, "E" },
-        { TH_CWR, "W" },
-        { 0, NULL }
-};
-
-static const struct tok tcp_option_values[] = {
-        { TCPOPT_EOL, "eol" },
-        { TCPOPT_NOP, "nop" },
-        { TCPOPT_MAXSEG, "mss" },
-        { TCPOPT_WSCALE, "wscale" },
-        { TCPOPT_SACKOK, "sackOK" },
-        { TCPOPT_SACK, "sack" },
-        { TCPOPT_ECHO, "echo" },
-        { TCPOPT_ECHOREPLY, "echoreply" },
-        { TCPOPT_TIMESTAMP, "TS" },
-        { TCPOPT_CC, "cc" },
-        { TCPOPT_CCNEW, "ccnew" },
-        { TCPOPT_CCECHO, "" },
-        { TCPOPT_SIGNATURE, "md5" },
-        { TCPOPT_SCPS, "scps" },
-        { TCPOPT_UTO, "uto" },
-        { TCPOPT_TCPAO, "tcp-ao" },
-        { TCPOPT_MPTCP, "mptcp" },
-        { TCPOPT_FASTOPEN, "tfo" },
-        { TCPOPT_EXPERIMENT2, "exp" },
-        { 0, NULL }
-};
-
 struct tcp_hdr{
 	u_short src_p;
 	u_short dst_p;
@@ -73,11 +38,11 @@ struct tcp_hdr{
 	u_int32_t ackn;
 	unsigned int h_len:4;
 	unsigned int reserved:6;
-	struct tcp_flag_values;
+	unsigned int res_flags:6;
 	u_short win_size;
 	u_short chksum;
 	u_short urg_ptr;
-	struct tcp_option_values;
+	u_int64_t opt;
 };
 
 int main(int argc, char **argv){
@@ -117,8 +82,8 @@ int main(int argc, char **argv){
 			printf("%s  ", inet_ntoa(ip_h->ip_dst));
 			printf("%d  ", ip_h->ip_p);
 			if((ip_h->ip_p == 6) || (ip_h->ip_p == 17)){ //check if protocol is TCP or UDP
-				printf("%d -> ", tcp_h->src_p);
-				printf("%d", tcp_h->dst_p);
+				printf("%d -> ", ntohs(tcp_h->src_p));
+				printf("%d", ntohs(tcp_h->dst_p));
 			}
 			printf("\n");
 			if(tcp_h->dst_p == 80){
